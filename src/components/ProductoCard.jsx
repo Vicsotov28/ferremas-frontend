@@ -1,0 +1,35 @@
+function ProductoCard({ producto, agregarAlCarrito }) {
+  return (
+    <article className="producto-card">
+      <div className="producto-badge">{producto.categoria}</div>
+
+      <div className="producto-icono">🔧</div>
+
+      <div className="producto-info">
+        <p className="producto-marca">{producto.marca}</p>
+        <h3>{producto.nombre}</h3>
+        <p className="producto-modelo">Modelo: {producto.modelo}</p>
+        <p className="producto-descripcion">{producto.descripcion}</p>
+
+        <div className="producto-footer">
+          <div>
+            <span className="producto-precio">
+              ${producto.precio.toLocaleString("es-CL")}
+            </span>
+            <p className="producto-stock">Stock: {producto.stock}</p>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => agregarAlCarrito(producto)}
+            disabled={producto.stock <= 0}
+          >
+            {producto.stock > 0 ? "Agregar" : "Sin stock"}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default ProductoCard;

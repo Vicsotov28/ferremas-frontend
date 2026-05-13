@@ -2,7 +2,9 @@ const API_URL = "http://localhost:8080";
 
 export async function loginUsuario(email, password) {
   const response = await fetch(
-    `${API_URL}/usuarios/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+    `${API_URL}/usuarios/login?email=${encodeURIComponent(
+      email
+    )}&password=${encodeURIComponent(password)}`,
     {
       method: "POST",
     }
@@ -170,6 +172,32 @@ export async function despacharPedido(id) {
 
   if (!response.ok) {
     throw new Error("Error al registrar despacho del pedido");
+  }
+
+  return await response.json();
+}
+
+export async function obtenerValorDolar() {
+  const response = await fetch(`${API_URL}/api/divisas/dolar`);
+
+  if (!response.ok) {
+    throw new Error("Error al obtener valor del dólar");
+  }
+
+  return await response.json();
+}
+
+export async function crearPreferenciaMercadoPago(preferencia) {
+  const response = await fetch(`${API_URL}/api/pagos/mercadopago/preferencia`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(preferencia),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al crear preferencia de Mercado Pago");
   }
 
   return await response.json();

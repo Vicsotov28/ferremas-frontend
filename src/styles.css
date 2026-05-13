@@ -224,6 +224,155 @@ button {
 }
 
 /* =========================
+   HOME SIMPLE
+========================= */
+
+.home-simple-page {
+  min-height: calc(100vh - 72px);
+  padding: 32px;
+}
+
+.home-simple-hero {
+  background: white;
+  border-radius: 30px;
+  padding: 56px 32px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  max-width: 980px;
+  margin: 0 auto 34px;
+}
+
+.home-logo-box {
+  width: 88px;
+  height: 88px;
+  border-radius: 26px;
+  background: #111827;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 2.8rem;
+  margin: 0 auto 20px;
+}
+
+.home-simple-hero h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.home-subtitle {
+  color: #64748b;
+  font-size: 1.1rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.home-simple-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.home-category-section {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.home-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+.home-category-card {
+  background: white;
+  border-radius: 22px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
+.home-category-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #f1f5f9;
+  display: grid;
+  place-items: center;
+  font-size: 1.9rem;
+  margin-bottom: 16px;
+}
+
+.home-category-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.home-category-card p {
+  color: #64748b;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.category-link {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+}
+
+.home-subscribe-banner {
+  max-width: 1180px;
+  margin: 28px auto 0;
+  background: linear-gradient(135deg, #111827, #334155);
+  color: white;
+  border-radius: 26px;
+  padding: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);
+}
+
+.home-subscribe-banner p {
+  color: #d1d5db;
+  margin-top: 6px;
+}
+
+@media (max-width: 720px) {
+  .home-simple-page {
+    padding: 18px;
+  }
+
+  .home-simple-hero {
+    padding: 38px 22px;
+  }
+
+  .home-simple-actions {
+    flex-direction: column;
+  }
+
+  .home-subscribe-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =========================
    CATÁLOGO
 ========================= */
 
@@ -428,6 +577,98 @@ button {
 
 .empty-state p {
   margin-bottom: 22px;
+}
+
+/* =========================
+   SUSCRIPCIÓN
+========================= */
+
+.suscripcion-page {
+  min-height: calc(100vh - 72px);
+  padding: 32px;
+  display: grid;
+  place-items: center;
+}
+
+.suscripcion-card {
+  width: min(1100px, 100%);
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  background: white;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+}
+
+.suscripcion-info {
+  background: linear-gradient(135deg, #111827, #334155);
+  color: white;
+  padding: 48px;
+}
+
+.suscripcion-info h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+
+.suscripcion-info p {
+  color: #d1d5db;
+  line-height: 1.6;
+}
+
+.beneficios-lista {
+  margin-top: 28px;
+  display: grid;
+  gap: 14px;
+}
+
+.beneficios-lista div {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.suscripcion-form {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.suscripcion-form h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.suscripcion-form p {
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.suscripcion-form label {
+  font-weight: 800;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.suscripcion-form input {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 16px;
+}
+
+.suscripcion-form input:focus {
+  border-color: #2563eb;
+  background: white;
 }
 
 /* =========================
@@ -986,6 +1227,23 @@ button {
   }
 }
 
+@media (max-width: 950px) {
+  .home-hero,
+  .suscripcion-card {
+    grid-template-columns: 1fr;
+  }
+
+  .home-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .suscripcion-info,
+  .suscripcion-form,
+  .home-hero {
+    padding: 32px;
+  }
+}
+
 @media (max-width: 900px) {
   .carrito-layout,
   .pedido-layout {
@@ -1048,11 +1306,14 @@ button {
     flex-wrap: wrap;
   }
 
-  .catalogo-page {
+  .catalogo-page,
+  .home-page,
+  .suscripcion-page {
     padding: 18px;
   }
 
-  .hero {
+  .hero,
+  .home-hero {
     padding: 30px;
     border-radius: 22px;
   }
@@ -1077,5 +1338,329 @@ button {
   .admin-product-item {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .descuento-row {
+    color: #166534;
+    font-weight: 800;
+  }
+}
+
+/* =========================
+   TRANSFERENCIA BANCARIA
+========================= */
+
+.transferencia-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.transferencia-box h4 {
+  margin: 0 0 14px;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.transferencia-row,
+.transferencia-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.transferencia-row span,
+.transferencia-total span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.transferencia-row strong,
+.transferencia-total strong {
+  color: #111827;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.transferencia-total {
+  border-bottom: none;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 2px solid #cbd5e1;
+}
+
+.transferencia-total strong {
+  color: #166534;
+  font-size: 1rem;
+}
+
+.transferencia-box p {
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.divisa-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 14px 18px;
+  border-radius: 18px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+  text-align: right;
+}
+
+.divisa-box span {
+  display: block;
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.divisa-box strong {
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.producto-usd {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .catalogo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .divisa-box {
+    width: 100%;
+    text-align: left;
+  }
+}
+/* =========================
+   RESULTADO DE PAGO
+========================= */
+
+.payment-result {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: white;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.payment-result.success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.payment-result.rejected {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.payment-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: white;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.payment-result h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+
+.payment-result p {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .payment-result {
+    flex-direction: column;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+  }
+
+  .payment-actions button {
+    width: 100%;
+  }
+}
+
+
+/* =========================
+   MERCADO PAGO
+========================= */
+
+.mercadopago-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.mercadopago-box h4 {
+  margin: 0 0 10px;
+  color: #1d4ed8;
+  font-size: 1rem;
+}
+
+.mercadopago-box p {
+  color: #475569;
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   TRANSFERENCIA BANCARIA
+========================= */
+
+.transferencia-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.transferencia-box h4 {
+  margin: 0 0 14px;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.transferencia-row,
+.transferencia-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.transferencia-row span,
+.transferencia-total span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.transferencia-row strong,
+.transferencia-total strong {
+  color: #111827;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.transferencia-total {
+  border-bottom: none;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 2px solid #cbd5e1;
+}
+
+.transferencia-total strong {
+  color: #166534;
+  font-size: 1rem;
+}
+
+.transferencia-box p {
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* =========================
+   RESULTADO DE PAGO
+========================= */
+
+.payment-result {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: white;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.payment-result.success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.payment-result.rejected {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.payment-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: white;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.payment-result h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+
+.payment-result p {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.payment-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .payment-result {
+    flex-direction: column;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+  }
+
+  .payment-actions button {
+    width: 100%;
   }
 }

@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { obtenerProductos } from "../services/api";
+import { obtenerProductos, obtenerValorDolar } from "../services/api";
 import ProductoCard from "../components/ProductoCard";
 
 function Catalogo({ agregarAlCarrito }) {
   const [productos, setProductos] = useState([]);
+  const [valorDolar, setValorDolar] = useState(null);
   const [error, setError] = useState("");
+  const [errorDivisa, setErrorDivisa] = useState("");
 
   useEffect(() => {
     obtenerProductos()
       .then((data) => setProductos(data))
       .catch((error) => setError(error.message));
+
+    obtenerValorDolar()
+      .then((data) => setValorDolar(data.valor))
+      .catch(() =>
+        setErrorDivisa(
+          "No se pudo cargar la conversión de moneda desde la API."
+        )
+      );
   }, []);
 
   return (
@@ -30,9 +40,19 @@ function Catalogo({ agregarAlCarrito }) {
           <h2>Catálogo de productos</h2>
           <p>{productos.length} productos disponibles</p>
         </div>
+
+        <div className="divisa-box">
+          <span>Conversión referencial</span>
+          <strong>
+            {valorDolar
+              ? `1 USD = $${valorDolar.toLocaleString("es-CL")} CLP`
+              : "Cargando divisa..."}
+          </strong>
+        </div>
       </section>
 
       {error && <p className="error-message">{error}</p>}
+      {errorDivisa && <p className="warning-message">{errorDivisa}</p>}
 
       <section className="productos-grid">
         {productos.map((producto) => (
@@ -40,6 +60,7 @@ function Catalogo({ agregarAlCarrito }) {
             key={producto.id}
             producto={producto}
             agregarAlCarrito={agregarAlCarrito}
+            valorDolar={valorDolar}
           />
         ))}
       </section>

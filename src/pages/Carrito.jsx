@@ -9,16 +9,20 @@ function Carrito({
   cambiarPagina,
   setPedidoActual,
   usuarioActual,
+  descuentoUsuario,
 }) {
   const [tipoEntrega, setTipoEntrega] = useState("RETIRO");
   const [direccion, setDireccion] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  const total = carrito.reduce(
+  const subtotal = carrito.reduce(
     (sum, item) => sum + item.precio * item.cantidad,
     0
   );
+
+  const montoDescuento = Math.round((subtotal * descuentoUsuario) / 100);
+  const totalFinal = subtotal - montoDescuento;
 
   const crearPedidoDesdeCarrito = async () => {
     setError("");
@@ -56,7 +60,15 @@ function Carrito({
         direccion: tipoEntrega === "DESPACHO" ? direccion : "",
       });
 
-      setPedidoActual(pedido);
+      const pedidoConDescuento = {
+        ...pedido,
+        subtotalOriginal: subtotal,
+        descuentoAplicado: descuentoUsuario,
+        montoDescuento,
+        totalConDescuento: totalFinal,
+      };
+
+      setPedidoActual(pedidoConDescuento);
       limpiarCarrito();
       cambiarPagina("pedidos");
     } catch (error) {
@@ -102,6 +114,13 @@ function Carrito({
       {!usuarioActual && (
         <div className="info-message">
           Para finalizar la compra debes iniciar sesión como cliente.
+        </div>
+      )}
+
+      {usuarioActual && usuarioActual.rol === "CLIENTE" && (
+        <div className="success-message">
+          Cliente: {usuarioActual.nombre} · Descuento aplicado:{" "}
+          {descuentoUsuario}%
         </div>
       )}
 
@@ -176,9 +195,19 @@ function Carrito({
             </strong>
           </div>
 
+          <div className="resumen-row">
+            <span>Subtotal</span>
+            <strong>${subtotal.toLocaleString("es-CL")}</strong>
+          </div>
+
+          <div className="resumen-row descuento-row">
+            <span>Descuento cliente ({descuentoUsuario}%)</span>
+            <strong>-${montoDescuento.toLocaleString("es-CL")}</strong>
+          </div>
+
           <div className="resumen-total">
-            <span>Total referencial</span>
-            <strong>${total.toLocaleString("es-CL")}</strong>
+            <span>Total final</span>
+            <strong>${totalFinal.toLocaleString("es-CL")}</strong>
           </div>
 
           <div className="checkout-box">

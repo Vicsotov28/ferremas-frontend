@@ -4,6 +4,7 @@ function Navbar({
   carritoCantidad,
   usuarioActual,
   cerrarSesion,
+  descuentoUsuario,
 }) {
   const mostrarPanelVendedor =
     usuarioActual &&
@@ -24,7 +25,7 @@ function Navbar({
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand" onClick={() => cambiarPagina("catalogo")}>
+      <div className="navbar-brand" onClick={() => cambiarPagina("home")}>
         <span className="brand-icon">🛠️</span>
         <div>
           <strong>FERREMAS</strong>
@@ -34,10 +35,26 @@ function Navbar({
 
       <div className="navbar-links">
         <button
+          className={paginaActual === "home" ? "nav-link active" : "nav-link"}
+          onClick={() => cambiarPagina("home")}
+        >
+          Inicio
+        </button>
+
+        <button
           className={paginaActual === "catalogo" ? "nav-link active" : "nav-link"}
           onClick={() => cambiarPagina("catalogo")}
         >
           Catálogo
+        </button>
+
+        <button
+          className={
+            paginaActual === "suscripcion" ? "nav-link active" : "nav-link"
+          }
+          onClick={() => cambiarPagina("suscripcion")}
+        >
+          Suscripción
         </button>
 
         <button
@@ -106,7 +123,11 @@ function Navbar({
           <div className="user-box">
             <div>
               <strong>{usuarioActual.nombre}</strong>
-              <small>{usuarioActual.rol}</small>
+              <small>
+                {usuarioActual.rol}
+                {usuarioActual.rol === "CLIENTE" &&
+                  ` · Descuento ${descuentoUsuario}%`}
+              </small>
             </div>
 
             <button className="nav-link logout" onClick={cerrarSesion}>

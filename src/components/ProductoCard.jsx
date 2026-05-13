@@ -1,4 +1,7 @@
-function ProductoCard({ producto, agregarAlCarrito }) {
+function ProductoCard({ producto, agregarAlCarrito, valorDolar }) {
+  const precioUsd =
+    valorDolar && valorDolar > 0 ? producto.precio / valorDolar : null;
+
   return (
     <article className="producto-card">
       <div className="producto-badge">{producto.categoria}</div>
@@ -16,6 +19,13 @@ function ProductoCard({ producto, agregarAlCarrito }) {
             <span className="producto-precio">
               ${producto.precio.toLocaleString("es-CL")}
             </span>
+
+            {precioUsd && (
+              <p className="producto-usd">
+                USD {precioUsd.toFixed(2)} aprox.
+              </p>
+            )}
+
             <p className="producto-stock">Stock: {producto.stock}</p>
           </div>
 

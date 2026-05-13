@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
 import Login from "./pages/Login";
 import Carrito from "./pages/Carrito";
@@ -8,9 +9,10 @@ import PanelVendedor from "./pages/PanelVendedor";
 import PanelBodeguero from "./pages/PanelBodeguero";
 import PanelContador from "./pages/PanelContador";
 import PanelAdmin from "./pages/PanelAdmin";
+import Suscripcion from "./pages/Suscripcion";
 
 function App() {
-  const [paginaActual, setPaginaActual] = useState("catalogo");
+  const [paginaActual, setPaginaActual] = useState("home");
   const [carrito, setCarrito] = useState([]);
   const [pedidoActual, setPedidoActual] = useState(null);
 
@@ -18,6 +20,18 @@ function App() {
     const usuarioGuardado = localStorage.getItem("usuarioFerremas");
     return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
   });
+
+  const obtenerDescuentoUsuario = (usuario) => {
+    if (!usuario) return 0;
+
+    if (usuario.rol === "CLIENTE") {
+      return 10;
+    }
+
+    return 0;
+  };
+
+  const descuentoUsuario = obtenerDescuentoUsuario(usuarioActual);
 
   const cambiarPagina = (pagina) => {
     setPaginaActual(pagina);
@@ -32,6 +46,8 @@ function App() {
   const cerrarSesion = () => {
     setUsuarioActual(null);
     localStorage.removeItem("usuarioFerremas");
+    setPedidoActual(null);
+    setCarrito([]);
     setPaginaActual("login");
   };
 
@@ -77,6 +93,14 @@ function App() {
   );
 
   const renderPagina = () => {
+    if (paginaActual === "home") {
+      return <Home cambiarPagina={cambiarPagina} />;
+    }
+
+    if (paginaActual === "suscripcion") {
+      return <Suscripcion cambiarPagina={cambiarPagina} />;
+    }
+
     if (paginaActual === "login") {
       return <Login iniciarSesion={iniciarSesion} />;
     }
@@ -91,6 +115,7 @@ function App() {
           cambiarPagina={cambiarPagina}
           setPedidoActual={setPedidoActual}
           usuarioActual={usuarioActual}
+          descuentoUsuario={descuentoUsuario}
         />
       );
     }
@@ -152,6 +177,7 @@ function App() {
         carritoCantidad={cantidadTotalCarrito}
         usuarioActual={usuarioActual}
         cerrarSesion={cerrarSesion}
+        descuentoUsuario={descuentoUsuario}
       />
 
       {renderPagina()}

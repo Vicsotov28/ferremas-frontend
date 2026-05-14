@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { registrarSuscripcion } from "../services/api";
 
 function Suscripcion({ cambiarPagina }) {
   const [email, setEmail] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  const manejarSuscripcion = (e) => {
+  const manejarSuscripcion = async (e) => {
     e.preventDefault();
     setMensaje("");
     setError("");
@@ -20,10 +22,18 @@ function Suscripcion({ cambiarPagina }) {
       return;
     }
 
-    setMensaje(
-      "¡Felicitaciones! Tu correo fue registrado correctamente para recibir ofertas y descuentos FERREMAS."
-    );
-    setEmail("");
+    try {
+      setCargando(true);
+
+      const respuesta = await registrarSuscripcion(email);
+
+      setMensaje(respuesta.mensaje);
+      setEmail("");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -70,10 +80,11 @@ function Suscripcion({ cambiarPagina }) {
             placeholder="cliente@correo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={cargando}
           />
 
-          <button className="btn-primary full" type="submit">
-            Recibir ofertas
+          <button className="btn-primary full" type="submit" disabled={cargando}>
+            {cargando ? "Registrando..." : "Recibir ofertas"}
           </button>
 
           <button

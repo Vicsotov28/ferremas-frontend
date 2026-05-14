@@ -177,7 +177,7 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
                 <button
                   className="btn-danger"
                   onClick={() => manejarRechazar(pedido.id)}
-                  disabled={pedido.estado === "DESPACHADO"}
+                  disabled={pedido.estado === "DESPACHADO" || pedido.estado === "RECHAZADO"}
                 >
                   Rechazar
                 </button>

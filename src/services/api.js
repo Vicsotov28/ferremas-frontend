@@ -202,3 +202,22 @@ export async function crearPreferenciaMercadoPago(preferencia) {
 
   return await response.json();
 }
+
+export async function registrarSuscripcion(email) {
+  const response = await fetch(`${API_URL}/api/suscripciones`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.message || "Error al registrar la suscripción"
+    );
+  }
+
+  return await response.json();
+}

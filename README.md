@@ -1,24 +1,32 @@
 # FERREMAS Frontend
 
-Frontend desarrollado para la Evaluación 2 del ramo **Integración de Plataformas (ASY5131)**.
+Frontend desarrollado para el proyecto **FERREMAS**, correspondiente a la evaluación de Integración de Plataformas.
 
-Este proyecto corresponde a la interfaz web del sistema de comercio electrónico **FERREMAS**, conectada con el backend desarrollado en Spring Boot mediante API REST.
-
----
-
-## Integrantes
-
-- Fernando Ronda
-- Benjamín Lackington
-- Vicente Soto
+La aplicación permite visualizar productos, iniciar sesión por roles, crear pedidos, pagar, revisar el estado de compra y gestionar el flujo operacional desde distintos paneles.
 
 ---
 
-## Contexto del proyecto
+## Descripción del proyecto
 
-FERREMAS requiere una solución web que permita modernizar su proceso de ventas, incorporando catálogo de productos, carrito de compras, gestión de pedidos, inicio de sesión por roles y comunicación con una API backend.
+FERREMAS es una empresa distribuidora de productos de ferretería y construcción que requiere una plataforma web de comercio electrónico.
 
-Este frontend consume los servicios REST del backend FERREMAS para mostrar productos, crear pedidos, simular pagos y gestionar el flujo operativo según los roles del sistema.
+Este frontend permite simular la experiencia completa de un sistema e-commerce conectado a un backend Spring Boot.
+
+El sistema permite:
+
+- Visualizar catálogo de productos.
+- Mostrar imágenes de productos.
+- Mostrar logo institucional de FERREMAS.
+- Iniciar sesión según rol.
+- Agregar productos al carrito.
+- Crear pedidos asociados al cliente.
+- Aplicar descuento al cliente.
+- Seleccionar retiro o despacho.
+- Pagar por transferencia o Mercado Pago.
+- Ver seguimiento del pedido.
+- Gestionar pedidos desde paneles internos.
+- Registrar suscripciones.
+- Mostrar precios en pesos y referencia aproximada en dólares.
 
 ---
 
@@ -30,112 +38,97 @@ Este frontend consume los servicios REST del backend FERREMAS para mostrar produ
 - CSS
 - Fetch API
 - LocalStorage
-- Visual Studio Code
+- Git y GitHub
+- Backend Spring Boot
+- Mercado Pago Checkout Pro
+- API Banco Central de Chile
 
 ---
 
-## Arquitectura del frontend
-
-El proyecto está organizado por componentes, páginas y servicios:
+## Estructura general del proyecto
 
 ```text
 src
-│
+├── assets
+│   ├── logo
+│   │   └── logo.jpg
+│   └── productos
+│       ├── taladro.jpg
+│       ├── martillo.jpg
+│       ├── pintura.jpg
+│       └── sierra.jpg
 ├── components
 │   ├── Navbar.jsx
 │   └── ProductoCard.jsx
-│
+├── data
+│   └── imagenesProductos.js
 ├── pages
+│   ├── Home.jsx
 │   ├── Catalogo.jsx
-│   ├── Carrito.jsx
 │   ├── Login.jsx
+│   ├── Carrito.jsx
 │   ├── Pedidos.jsx
+│   ├── Suscripcion.jsx
 │   ├── PanelVendedor.jsx
 │   ├── PanelBodeguero.jsx
 │   ├── PanelContador.jsx
 │   └── PanelAdmin.jsx
-│
 ├── services
 │   └── api.js
-│
 ├── App.jsx
-├── main.jsx
 └── styles.css
 ```
 
 ---
 
-## Requisitos previos
+## Funcionalidades principales
 
-Antes de ejecutar el frontend, se debe tener instalado:
+### Página de inicio
 
-- Node.js
-- npm
-- Visual Studio Code
+La página principal presenta el sistema FERREMAS con opciones para:
 
-También debe estar ejecutándose el backend de FERREMAS en:
+- Ver catálogo.
+- Ir a suscripción.
+- Iniciar sesión.
+- Acceder a una experiencia visual más cercana a un e-commerce.
+
+---
+
+### Catálogo de productos
+
+El catálogo consume productos desde el backend mediante API REST.
+
+Cada producto muestra:
+
+- Imagen.
+- Marca.
+- Nombre.
+- Descripción.
+- Precio en pesos chilenos.
+- Precio aproximado en dólares.
+- Stock.
+- Botón para agregar al carrito.
+
+Las imágenes se relacionan con el código del producto mediante el archivo:
 
 ```text
-http://localhost:8080
+src/data/imagenesProductos.js
+```
+
+Relación actual:
+
+```text
+FER-12345 → taladro.jpg
+FER-23456 → martillo.jpg
+FER-34567 → pintura.jpg
+FER-45678 → sierra.jpg
 ```
 
 ---
 
-## Instalación del proyecto
+### Login por roles
 
-### 1. Clonar el repositorio
-
-```bash
-git clone URL_DEL_REPOSITORIO_FRONTEND
-```
-
-### 2. Entrar a la carpeta del frontend
-
-```bash
-cd ferremas-frontend
-```
-
-### 3. Instalar dependencias
-
-```bash
-npm install
-```
-
-### 4. Ejecutar el frontend
-
-```bash
-npm run dev
-```
-
-El frontend se levantará normalmente en:
-
-```text
-http://localhost:5173
-```
-
----
-
-## Conexión con el backend
-
-El archivo encargado de consumir la API es:
-
-```text
-src/services/api.js
-```
-
-Actualmente el frontend consume el backend desde:
-
-```javascript
-const API_URL = "http://localhost:8080";
-```
-
-Por lo tanto, antes de usar el frontend, el backend debe estar activo en el puerto `8080`.
-
----
-
-## Usuarios demo
-
-Los usuarios demo se cargan desde el backend mediante `DataLoader`.
+El frontend permite iniciar sesión con usuarios demo entregados por el backend.
 
 | Rol | Email | Contraseña |
 |---|---|---|
@@ -145,129 +138,288 @@ Los usuarios demo se cargan desde el backend mediante `DataLoader`.
 | Contador | contador@ferremas.cl | 1234 |
 | Administrador | admin@ferremas.cl | 1234 |
 
+Según el rol, se habilitan distintas secciones en el menú.
+
 ---
 
-## Funcionalidades implementadas
+## Roles del sistema
 
 ### Cliente
 
-- Inicio de sesión.
-- Visualización del catálogo de productos.
+Puede:
+
+- Ver catálogo.
 - Agregar productos al carrito.
-- Seleccionar tipo de entrega: retiro o despacho.
-- Ingresar dirección para despacho.
-- Crear pedido.
-- Procesar pago simulado.
+- Crear pedidos.
+- Seleccionar retiro o despacho.
+- Pagar por transferencia o Mercado Pago.
 - Ver seguimiento del pedido.
+- Recibir descuento visual del 10%.
+
+---
 
 ### Vendedor
 
-- Visualizar pedidos.
+Puede:
+
+- Ver pedidos.
+- Revisar cliente asociado.
+- Revisar producto, cantidad, total y método de pago.
 - Aprobar pedidos pagados.
-- Rechazar pedidos.
+- Rechazar pedidos cuando corresponda.
+
+---
 
 ### Bodeguero
 
-- Visualizar pedidos aprobados.
-- Marcar pedidos como en preparación.
+Puede:
+
+- Ver pedidos aprobados.
+- Revisar cliente asociado.
+- Preparar pedidos.
 - Marcar pedidos como listos para despacho.
+
+---
 
 ### Contador
 
-- Visualizar pedidos pagados y despachados.
-- Registrar entrega final del pedido.
-- Ver resumen financiero básico.
+Puede:
+
+- Revisar pedidos pagados y listos.
+- Ver información del cliente.
+- Revisar total de ventas.
+- Registrar entrega final.
+- Consultar resumen financiero básico.
+
+---
 
 ### Administrador
 
-- Visualizar métricas generales.
-- Ver productos registrados.
-- Crear nuevos productos.
-- Eliminar productos sin pedidos asociados.
-- Acceder a paneles operativos.
+Puede acceder a los paneles internos y gestionar información general del sistema.
 
 ---
 
-## Flujo principal de la aplicación
+## Carrito de compras
+
+El carrito permite:
+
+- Ver productos seleccionados.
+- Modificar cantidad.
+- Eliminar productos.
+- Vaciar carrito.
+- Calcular subtotal.
+- Aplicar descuento de cliente.
+- Calcular total final.
+- Seleccionar tipo de entrega:
+  - Retiro en tienda.
+  - Despacho a domicilio.
+
+Actualmente el pedido se genera con el primer producto del carrito. La integración multiproducto queda definida como mejora futura.
+
+---
+
+## Pedidos
+
+La vista de pedidos permite:
+
+- Ver el pedido actual.
+- Revisar producto, cantidad, entrega, dirección y total.
+- Ver descuento aplicado.
+- Seleccionar método de pago.
+- Pagar con Mercado Pago.
+- Confirmar transferencia bancaria.
+
+---
+
+## Integración con Mercado Pago
+
+El frontend se conecta al backend para crear una preferencia de pago.
+
+Flujo general:
 
 ```text
-Login
-→ Catálogo
-→ Carrito
-→ Crear pedido
-→ Pagar pedido
-→ Panel vendedor aprueba
-→ Panel bodeguero prepara
-→ Panel contador registra entrega
+Cliente crea pedido
+        ↓
+Frontend solicita preferencia al backend
+        ↓
+Backend crea preferencia con Mercado Pago
+        ↓
+Frontend redirige al Checkout Pro
+        ↓
+Cliente realiza pago de prueba
+```
+
+Endpoint utilizado:
+
+```http
+POST /api/pagos/mercadopago/preferencia
 ```
 
 ---
 
-## Endpoints consumidos
+## Transferencia bancaria
 
-El frontend consume principalmente los siguientes endpoints del backend:
+El sistema también permite seleccionar transferencia bancaria.
 
-### Usuarios
-
-```http
-POST /usuarios/login
-```
-
-### Productos
-
-```http
-GET /api/productos
-GET /productos
-POST /productos
-DELETE /productos/{id}
-```
-
-### Pedidos
-
-```http
-POST /pedidos
-GET /pedidos
-GET /pedidos/{id}
-PUT /pedidos/pagar
-PUT /pedidos/{id}/aprobar
-PUT /pedidos/{id}/rechazar
-PUT /pedidos/{id}/preparar
-PUT /pedidos/{id}/listo-despacho
-PUT /pedidos/{id}/despachar
-```
+Cuando el cliente selecciona este método, se muestran datos bancarios simulados de FERREMAS y se permite confirmar el pago.
 
 ---
 
-## Medio de pago
+## Suscripciones
 
-Actualmente el sistema utiliza un pago simulado conectado al backend mediante `WebpayService`.
+La vista de suscripción permite registrar correos para recibir ofertas y descuentos.
 
-La integración real con Webpay queda pendiente para una etapa posterior del desarrollo grupal.
+El formulario se conecta al backend mediante:
+
+```http
+POST /api/suscripciones
+```
+
+El sistema muestra mensaje de éxito cuando el correo queda registrado.
 
 ---
 
-## Repositorios del proyecto
+## Consumo de API
 
-Según lo solicitado para la evaluación, el sistema se divide en dos repositorios:
+El frontend centraliza las llamadas al backend en:
 
 ```text
-ferremas-backend  -> API REST desarrollada con Spring Boot
-ferremas-frontend -> Interfaz web desarrollada con React
+src/services/api.js
 ```
 
-Este repositorio corresponde al frontend de la solución.
+Principales funciones:
+
+- `loginUsuario`
+- `obtenerProductos`
+- `crearPedido`
+- `pagarPedido`
+- `obtenerPedidos`
+- `aprobarPedido`
+- `rechazarPedido`
+- `prepararPedido`
+- `marcarListoDespacho`
+- `despacharPedido`
+- `obtenerValorDolar`
+- `crearPreferenciaMercadoPago`
+- `registrarSuscripcion`
 
 ---
 
-## Estado actual del proyecto
+## Variable de entorno del frontend
 
-El frontend se encuentra funcionalmente integrado con el backend.
+Para entorno local o producción, la URL del backend se puede manejar mediante:
 
-Pendientes principales:
+```env
+VITE_API_URL=http://localhost:8080
+```
 
-- Integración real con Webpay u otro medio de pago.
-- Mejoras visuales finales.
-- Revisión grupal.
-- Preparación de demo para presentación.
+En `api.js` se recomienda utilizar:
+
+```javascript
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+```
+
+Esto permite cambiar la URL cuando el backend esté desplegado en Render, Railway u otro servicio.
 
 ---
+
+## Cómo ejecutar el frontend
+
+Desde PowerShell:
+
+```powershell
+cd C:\Users\Moonlab\OneDrive\Escritorio\Ferremas-Frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+La aplicación queda disponible en:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Backend requerido
+
+Para funcionar correctamente, el frontend necesita que el backend esté ejecutándose en:
+
+```text
+http://localhost:8080
+```
+
+O bien configurar la variable:
+
+```env
+VITE_API_URL=https://url-del-backend-en-produccion
+```
+
+---
+
+## Flujo completo de prueba
+
+Para demostrar el sistema completo:
+
+```text
+1. Iniciar sesión como cliente.
+2. Agregar producto al carrito.
+3. Crear pedido.
+4. Pagar por transferencia o Mercado Pago.
+5. Iniciar sesión como vendedor.
+6. Aprobar pedido pagado.
+7. Iniciar sesión como bodeguero.
+8. Preparar pedido.
+9. Marcar pedido como listo para despacho.
+10. Iniciar sesión como contador.
+11. Registrar entrega final.
+```
+
+---
+
+## Evidencias recomendadas para presentación
+
+- Página de inicio con logo FERREMAS.
+- Catálogo con imágenes de productos.
+- Login con usuario cliente.
+- Carrito con descuento.
+- Creación de pedido.
+- Pantalla de pago.
+- Redirección a Mercado Pago.
+- Panel de vendedor mostrando cliente asociado.
+- Panel de bodeguero mostrando preparación.
+- Panel de contador mostrando entrega final.
+- Suscripción registrada correctamente.
+- Precio de productos con conversión aproximada a dólar.
+
+---
+
+## Mejoras futuras
+
+- Implementar autenticación con JWT.
+- Mantener sesión con token seguro.
+- Agregar rutas protegidas.
+- Mejorar diseño responsive para celulares.
+- Implementar pedidos con múltiples productos.
+- Agregar historial de pedidos por cliente.
+- Agregar filtros avanzados por categoría, marca y precio.
+- Agregar buscador de productos.
+- Implementar confirmación automática de pago mediante webhook.
+- Agregar pruebas unitarias con React Testing Library.
+- Agregar pruebas end-to-end con Cypress o Playwright.
+- Mejorar validaciones visuales de formularios.
+- Crear panel de administración más completo.
+- Desplegar frontend en Vercel o Netlify.
+
+---
+
+## Autor
+
+Proyecto desarrollado por:
+
+**Vicente Soto**  
+**Fernando Ronda**  
+**Benjamin Lackington**  
+
+Ingeniería en Informática  
+Duoc UC

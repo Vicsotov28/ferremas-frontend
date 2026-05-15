@@ -1,3 +1,5 @@
+import logoFerremas from "../assets/logo/logo.jpg";
+
 function Navbar({
   paginaActual,
   cambiarPagina,
@@ -26,10 +28,11 @@ function Navbar({
   return (
     <nav className="navbar">
       <div className="navbar-brand" onClick={() => cambiarPagina("home")}>
-        <span className="brand-icon">🛠️</span>
+        <img src={logoFerremas} alt="Logo FERREMAS" className="navbar-logo" />
+
         <div>
           <strong>FERREMAS</strong>
-          <small>Integración de Plataformas</small>
+          <small>Ferretería y construcción</small>
         </div>
       </div>
 
@@ -42,7 +45,9 @@ function Navbar({
         </button>
 
         <button
-          className={paginaActual === "catalogo" ? "nav-link active" : "nav-link"}
+          className={
+            paginaActual === "catalogo" ? "nav-link active" : "nav-link"
+          }
           onClick={() => cambiarPagina("catalogo")}
         >
           Catálogo
@@ -58,14 +63,18 @@ function Navbar({
         </button>
 
         <button
-          className={paginaActual === "carrito" ? "nav-link active" : "nav-link"}
+          className={
+            paginaActual === "carrito" ? "nav-link active" : "nav-link"
+          }
           onClick={() => cambiarPagina("carrito")}
         >
           Carrito ({carritoCantidad})
         </button>
 
         <button
-          className={paginaActual === "pedidos" ? "nav-link active" : "nav-link"}
+          className={
+            paginaActual === "pedidos" ? "nav-link active" : "nav-link"
+          }
           onClick={() => cambiarPagina("pedidos")}
         >
           Pedidos

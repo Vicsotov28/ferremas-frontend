@@ -1,12 +1,22 @@
+import { imagenesProductos } from "../data/imagenesProductos";
+
 function ProductoCard({ producto, agregarAlCarrito, valorDolar }) {
   const precioUsd =
     valorDolar && valorDolar > 0 ? producto.precio / valorDolar : null;
+  
+  const imagenProducto = imagenesProductos[producto.codigoProducto];
 
   return (
     <article className="producto-card">
       <div className="producto-badge">{producto.categoria}</div>
 
-      <div className="producto-icono">🔧</div>
+      <div className="producto-imagen">
+        {imagenProducto ? (
+          <img src={imagenProducto} alt={producto.nombre} />
+        ) : (
+          <span>🔧</span>
+        )}
+      </div>
 
       <div className="producto-info">
         <p className="producto-marca">{producto.marca}</p>

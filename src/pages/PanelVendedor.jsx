@@ -68,14 +68,18 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
     );
   }
 
-  if (usuarioActual.rol !== "VENDEDOR" && usuarioActual.rol !== "ADMINISTRADOR") {
+  if (
+    usuarioActual.rol !== "VENDEDOR" &&
+    usuarioActual.rol !== "ADMINISTRADOR"
+  ) {
     return (
       <main className="page-container">
         <section className="empty-state">
           <div className="empty-icon">⛔</div>
           <h2>No tienes permisos</h2>
           <p>
-            Esta pantalla es solo para usuarios con rol VENDEDOR o ADMINISTRADOR.
+            Esta pantalla es solo para usuarios con rol VENDEDOR o
+            ADMINISTRADOR.
           </p>
           <button
             className="btn-primary"
@@ -135,14 +139,16 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
 
               <div className="admin-info-grid">
                 <div>
-                 <span>Cliente</span>
-                 <strong>{pedido.usuario?.nombre || "Cliente no registrado"}</strong>
-                 <small>{pedido.usuario?.email}</small>
-              </div>
+                  <span>Cliente</span>
+                  <strong>
+                    {pedido.usuario?.nombre || "Cliente no registrado"}
+                  </strong>
+                  <small>{pedido.usuario?.email || "Sin correo registrado"}</small>
+                </div>
 
                 <div>
                   <span>Producto</span>
-                  <strong>{pedido.producto?.nombre}</strong>
+                  <strong>{pedido.producto?.nombre || "Sin producto"}</strong>
                 </div>
 
                 <div>
@@ -178,7 +184,10 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
                 <button
                   className="btn-danger"
                   onClick={() => manejarRechazar(pedido.id)}
-                  disabled={pedido.estado === "DESPACHADO" || pedido.estado === "RECHAZADO"}
+                  disabled={
+                    pedido.estado === "DESPACHADO" ||
+                    pedido.estado === "RECHAZADO"
+                  }
                 >
                   Rechazar
                 </button>

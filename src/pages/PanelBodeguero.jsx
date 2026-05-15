@@ -153,8 +153,16 @@ function PanelBodeguero({ usuarioActual, cambiarPagina }) {
 
               <div className="admin-info-grid">
                 <div>
+                  <span>Cliente</span>
+                  <strong>
+                    {pedido.usuario?.nombre || "Cliente no registrado"}
+                  </strong>
+                  <small>{pedido.usuario?.email || "Sin correo registrado"}</small>
+                </div>
+
+                <div>
                   <span>Producto</span>
-                  <strong>{pedido.producto?.nombre}</strong>
+                  <strong>{pedido.producto?.nombre || "Sin producto"}</strong>
                 </div>
 
                 <div>

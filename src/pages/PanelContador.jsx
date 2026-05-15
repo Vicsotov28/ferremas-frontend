@@ -169,6 +169,11 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
                   <span>Producto</span>
                   <strong>{pedido.producto?.nombre}</strong>
                 </div>
+                
+                <div>
+                 <span>Cliente</span>
+                 <strong>{pedido.usuario?.nombre || "Cliente no registrado"}</strong>
+                </div>
 
                 <div>
                   <span>Cantidad</span>

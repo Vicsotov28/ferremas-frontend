@@ -27,8 +27,8 @@ function Carrito({
   const crearPedidoDesdeCarrito = async () => {
     setError("");
 
-    if (!usuarioActual) {
-      setError("Debes iniciar sesión antes de crear un pedido.");
+    if (!usuarioActual || !usuarioActual.id) {
+      setError("Debes iniciar sesión como cliente para crear un pedido.");
       setTimeout(() => cambiarPagina("login"), 900);
       return;
     }
@@ -55,6 +55,7 @@ function Carrito({
 
       const pedido = await crearPedido({
         productoId: primerProducto.id,
+        usuarioId: usuarioActual.id,
         cantidad: primerProducto.cantidad,
         tipoEntrega,
         direccion: tipoEntrega === "DESPACHO" ? direccion : "",

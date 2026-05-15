@@ -135,9 +135,10 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
 
               <div className="admin-info-grid">
                 <div>
-                  <span>Cliente</span>
-                  <strong>Cliente FERREMAS</strong>
-                </div>
+                 <span>Cliente</span>
+                 <strong>{pedido.usuario?.nombre || "Cliente no registrado"}</strong>
+                 <small>{pedido.usuario?.email}</small>
+              </div>
 
                 <div>
                   <span>Producto</span>

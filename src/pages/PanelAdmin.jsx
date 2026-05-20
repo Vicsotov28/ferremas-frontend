@@ -4,6 +4,7 @@ import {
   eliminarProducto,
   obtenerPedidos,
   obtenerProductosAdmin,
+  registrarUsuario,
 } from "../services/api";
 
 function PanelAdmin({ usuarioActual, cambiarPagina }) {
@@ -24,6 +25,16 @@ function PanelAdmin({ usuarioActual, cambiarPagina }) {
     precio: "",
     stock: "",
   });
+
+  const [formularioUsuario, setFormularioUsuario] = useState({
+    nombre: "",
+    email: "",
+    password: "",
+    rol: "VENDEDOR",
+  });
+
+  const [mensajeUsuario, setMensajeUsuario] = useState("");
+  const [errorUsuario, setErrorUsuario] = useState("");
 
   const cargarDatos = async () => {
     try {
@@ -97,6 +108,43 @@ function PanelAdmin({ usuarioActual, cambiarPagina }) {
     }
   };
 
+  const manejarCambioUsuario = (e) => {
+    setFormularioUsuario({
+      ...formularioUsuario,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const manejarCrearUsuario = async (e) => {
+    e.preventDefault();
+    setErrorUsuario("");
+    setMensajeUsuario("");
+
+    if (
+      !formularioUsuario.nombre.trim() ||
+      !formularioUsuario.email.trim() ||
+      !formularioUsuario.password.trim()
+    ) {
+      setErrorUsuario("Completa nombre, email y contraseña.");
+      return;
+    }
+
+    try {
+      const nuevoUsuario = await registrarUsuario(formularioUsuario);
+      setMensajeUsuario(
+        `Usuario ${nuevoUsuario.email} creado con rol ${nuevoUsuario.rol}.`
+      );
+      setFormularioUsuario({
+        nombre: "",
+        email: "",
+        password: "",
+        rol: "VENDEDOR",
+      });
+    } catch (error) {
+      setErrorUsuario(error.message);
+    }
+  };
+
   const manejarEliminarProducto = async (id) => {
     const confirmar = window.confirm(
       "¿Seguro que deseas eliminar este producto?"
@@ -167,6 +215,40 @@ function PanelAdmin({ usuarioActual, cambiarPagina }) {
     (pedido) => pedido.estado === "DESPACHADO"
   ).length;
 
+  // Reporte de ventas agrupado por mes-año (pauta: "informes de venta mensual")
+  const NOMBRES_MESES = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  ];
+
+  const ventasPorMes = pedidos
+    .filter(
+      (pedido) =>
+        pedido.estado !== "RECHAZADO" &&
+        pedido.estado !== "PENDIENTE" &&
+        pedido.fecha
+    )
+    .reduce((acumulador, pedido) => {
+      const fecha = new Date(pedido.fecha);
+      const clave = `${fecha.getFullYear()}-${String(
+        fecha.getMonth() + 1
+      ).padStart(2, "0")}`;
+      const etiqueta = `${NOMBRES_MESES[fecha.getMonth()]} ${fecha.getFullYear()}`;
+
+      if (!acumulador[clave]) {
+        acumulador[clave] = { etiqueta, total: 0, cantidad: 0 };
+      }
+
+      acumulador[clave].total += pedido.total || 0;
+      acumulador[clave].cantidad += 1;
+
+      return acumulador;
+    }, {});
+
+  const filasMensuales = Object.entries(ventasPorMes)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([clave, dato]) => ({ clave, ...dato }));
+
   return (
     <main className="page-container">
       <div className="section-title">
@@ -221,7 +303,96 @@ function PanelAdmin({ usuarioActual, cambiarPagina }) {
             </article>
           </section>
 
+          <section className="admin-grid" style={{ marginBottom: "24px" }}>
+            <article className="admin-card">
+              <div className="admin-card-header">
+                <div>
+                  <p className="eyebrow-dark">Reporte de desempeño</p>
+                  <h3>Ventas por mes</h3>
+                </div>
+              </div>
+
+              {filasMensuales.length === 0 ? (
+                <p className="nota-carrito">
+                  Aún no hay pedidos pagados para reportar ventas mensuales.
+                </p>
+              ) : (
+                <div className="admin-product-list">
+                  {filasMensuales.map((fila) => (
+                    <article className="admin-product-item" key={fila.clave}>
+                      <div>
+                        <strong>{fila.etiqueta}</strong>
+                        <span>{fila.cantidad} pedidos</span>
+                      </div>
+                      <strong>${fila.total.toLocaleString("es-CL")}</strong>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </article>
+          </section>
+
           <section className="admin-layout">
+            <form
+              className="admin-form"
+              onSubmit={manejarCrearUsuario}
+              style={{ marginBottom: "24px" }}
+            >
+              <h3>Crear usuario</h3>
+              <p>
+                Da de alta vendedores, bodegueros, contadores u otros
+                administradores. La contraseña se almacena con BCrypt.
+              </p>
+
+              {errorUsuario && (
+                <p className="error-message">{errorUsuario}</p>
+              )}
+              {mensajeUsuario && (
+                <p className="success-message">{mensajeUsuario}</p>
+              )}
+
+              <div className="form-grid">
+                <input
+                  name="nombre"
+                  placeholder="Nombre completo *"
+                  value={formularioUsuario.nombre}
+                  onChange={manejarCambioUsuario}
+                />
+
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="correo@ferremas.cl *"
+                  value={formularioUsuario.email}
+                  onChange={manejarCambioUsuario}
+                />
+
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Contraseña inicial *"
+                  value={formularioUsuario.password}
+                  onChange={manejarCambioUsuario}
+                />
+
+                <select
+                  name="rol"
+                  value={formularioUsuario.rol}
+                  onChange={manejarCambioUsuario}
+                >
+                  <option value="VENDEDOR">Vendedor</option>
+                  <option value="BODEGUERO">Bodeguero</option>
+                  <option value="CONTADOR">Contador</option>
+                  <option value="ADMINISTRADOR">Administrador</option>
+                  <option value="CLIENTE">Cliente</option>
+                </select>
+              </div>
+
+              <button className="btn-primary full" type="submit">
+                Crear usuario
+              </button>
+            </form>
+
             <form className="admin-form" onSubmit={manejarCrearProducto}>
               <h3>Crear producto</h3>
               <p>Agrega nuevos productos al catálogo FERREMAS.</p>

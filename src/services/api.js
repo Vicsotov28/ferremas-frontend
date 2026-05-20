@@ -1,56 +1,52 @@
 const API_URL = "http://localhost:8080";
 
-export async function loginUsuario(email, password) {
-  const response = await fetch(
-    `${API_URL}/usuarios/login?email=${encodeURIComponent(
-      email
-    )}&password=${encodeURIComponent(password)}`,
-    {
-      method: "POST",
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Credenciales incorrectas");
+// Helper: extrae el mensaje real del backend (Spring devuelve { message: "..." })
+// y cae al mensaje genérico si no hay JSON parseable.
+async function manejarRespuesta(response, mensajeGenerico) {
+  if (response.ok) {
+    return await response.json();
   }
 
-  return await response.json();
+  let mensajeBackend = null;
+
+  try {
+    const data = await response.json();
+    mensajeBackend = data?.message || data?.error || null;
+  } catch {
+    mensajeBackend = null;
+  }
+
+  throw new Error(mensajeBackend || mensajeGenerico);
+}
+
+export async function loginUsuario(email, password) {
+  const response = await fetch(`${API_URL}/usuarios/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  return await manejarRespuesta(response, "Credenciales incorrectas");
 }
 
 export async function obtenerProductos() {
   const response = await fetch(`${API_URL}/api/productos`);
-
-  if (!response.ok) {
-    throw new Error("Error al obtener productos");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al obtener productos");
 }
 
 export async function obtenerProductosAdmin() {
   const response = await fetch(`${API_URL}/productos`);
-
-  if (!response.ok) {
-    throw new Error("Error al obtener productos");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al obtener productos");
 }
 
 export async function crearProducto(producto) {
   const response = await fetch(`${API_URL}/productos`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(producto),
   });
 
-  if (!response.ok) {
-    throw new Error("Error al crear producto");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al crear producto");
 }
 
 export async function eliminarProducto(id) {
@@ -59,7 +55,14 @@ export async function eliminarProducto(id) {
   });
 
   if (!response.ok) {
-    throw new Error("Error al eliminar producto");
+    let mensajeBackend = null;
+    try {
+      const data = await response.json();
+      mensajeBackend = data?.message || null;
+    } catch {
+      mensajeBackend = null;
+    }
+    throw new Error(mensajeBackend || "Error al eliminar producto");
   }
 
   return true;
@@ -68,53 +71,39 @@ export async function eliminarProducto(id) {
 export async function crearPedido(pedido) {
   const response = await fetch(`${API_URL}/pedidos`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(pedido),
   });
 
-  if (!response.ok) {
-    throw new Error("Error al crear pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al crear pedido");
 }
 
 export async function pagarPedido(pago) {
   const response = await fetch(`${API_URL}/pedidos/pagar`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(pago),
   });
 
-  if (!response.ok) {
-    throw new Error("Error al procesar pago");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al procesar pago");
 }
 
 export async function obtenerPedidoPorId(id) {
   const response = await fetch(`${API_URL}/pedidos/${id}`);
-
-  if (!response.ok) {
-    throw new Error("Error al obtener pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al obtener pedido");
 }
 
 export async function obtenerPedidos() {
   const response = await fetch(`${API_URL}/pedidos`);
+  return await manejarRespuesta(response, "Error al obtener pedidos");
+}
 
-  if (!response.ok) {
-    throw new Error("Error al obtener pedidos");
-  }
+export async function confirmarPagoTransferencia(id) {
+  const response = await fetch(`${API_URL}/pedidos/${id}/confirmar-pago`, {
+    method: "PUT",
+  });
 
-  return await response.json();
+  return await manejarRespuesta(response, "Error al confirmar la transferencia");
 }
 
 export async function aprobarPedido(id) {
@@ -122,11 +111,7 @@ export async function aprobarPedido(id) {
     method: "PUT",
   });
 
-  if (!response.ok) {
-    throw new Error("Error al aprobar pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al aprobar pedido");
 }
 
 export async function rechazarPedido(id) {
@@ -134,11 +119,7 @@ export async function rechazarPedido(id) {
     method: "PUT",
   });
 
-  if (!response.ok) {
-    throw new Error("Error al rechazar pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al rechazar pedido");
 }
 
 export async function prepararPedido(id) {
@@ -146,11 +127,7 @@ export async function prepararPedido(id) {
     method: "PUT",
   });
 
-  if (!response.ok) {
-    throw new Error("Error al preparar pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al preparar pedido");
 }
 
 export async function marcarListoDespacho(id) {
@@ -158,11 +135,10 @@ export async function marcarListoDespacho(id) {
     method: "PUT",
   });
 
-  if (!response.ok) {
-    throw new Error("Error al marcar pedido como listo para despacho");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(
+    response,
+    "Error al marcar pedido como listo para despacho"
+  );
 }
 
 export async function despacharPedido(id) {
@@ -170,54 +146,71 @@ export async function despacharPedido(id) {
     method: "PUT",
   });
 
-  if (!response.ok) {
-    throw new Error("Error al registrar despacho del pedido");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(
+    response,
+    "Error al registrar despacho del pedido"
+  );
 }
 
 export async function obtenerValorDolar() {
   const response = await fetch(`${API_URL}/api/divisas/dolar`);
-
-  if (!response.ok) {
-    throw new Error("Error al obtener valor del dólar");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(response, "Error al obtener valor del dólar");
 }
 
 export async function crearPreferenciaMercadoPago(preferencia) {
   const response = await fetch(`${API_URL}/api/pagos/mercadopago/preferencia`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(preferencia),
   });
 
-  if (!response.ok) {
-    throw new Error("Error al crear preferencia de Mercado Pago");
-  }
-
-  return await response.json();
+  return await manejarRespuesta(
+    response,
+    "Error al crear preferencia de Mercado Pago"
+  );
 }
 
 export async function registrarSuscripcion(email) {
   const response = await fetch(`${API_URL}/api/suscripciones`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(
-      errorData?.message || "Error al registrar la suscripción"
-    );
-  }
+  return await manejarRespuesta(response, "Error al registrar la suscripción");
+}
 
-  return await response.json();
+export async function crearTransaccionWebpay(datos) {
+  const response = await fetch(`${API_URL}/api/pagos/webpay/crear`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+
+  return await manejarRespuesta(response, "Error al iniciar el pago con Webpay");
+}
+
+export async function registrarUsuario(usuario) {
+  const response = await fetch(`${API_URL}/usuarios/registro`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(usuario),
+  });
+
+  return await manejarRespuesta(response, "Error al registrar usuario");
+}
+
+export async function enviarContacto(contacto) {
+  const response = await fetch(`${API_URL}/api/contacto`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(contacto),
+  });
+
+  return await manejarRespuesta(response, "Error al enviar el mensaje de contacto");
+}
+
+export async function listarContactos() {
+  const response = await fetch(`${API_URL}/api/contacto`);
+  return await manejarRespuesta(response, "Error al obtener mensajes de contacto");
 }

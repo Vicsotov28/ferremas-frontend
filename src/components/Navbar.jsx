@@ -64,6 +64,15 @@ function Navbar({
 
         <button
           className={
+            paginaActual === "contacto" ? "nav-link active" : "nav-link"
+          }
+          onClick={() => cambiarPagina("contacto")}
+        >
+          Contacto
+        </button>
+
+        <button
+          className={
             paginaActual === "carrito" ? "nav-link active" : "nav-link"
           }
           onClick={() => cambiarPagina("carrito")}
@@ -134,8 +143,10 @@ function Navbar({
               <strong>{usuarioActual.nombre}</strong>
               <small>
                 {usuarioActual.rol}
-                {usuarioActual.rol === "CLIENTE" &&
+                {usuarioActual.rol === "CLIENTE" && descuentoUsuario > 0 &&
                   ` · Descuento ${descuentoUsuario}%`}
+                {usuarioActual.rol === "CLIENTE" && descuentoUsuario === 0 &&
+                  ` · Descuento desde 5 unidades`}
               </small>
             </div>
 

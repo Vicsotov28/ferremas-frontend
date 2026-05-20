@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
@@ -10,6 +10,9 @@ import PanelBodeguero from "./pages/PanelBodeguero";
 import PanelContador from "./pages/PanelContador";
 import PanelAdmin from "./pages/PanelAdmin";
 import Suscripcion from "./pages/Suscripcion";
+import Contacto from "./pages/Contacto";
+import CambiarPassword from "./pages/CambiarPassword";
+import WebpayResultado from "./pages/WebpayResultado";
 
 function App() {
   const [paginaActual, setPaginaActual] = useState("home");
@@ -21,17 +24,45 @@ function App() {
     return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
   });
 
-  const obtenerDescuentoUsuario = (usuario) => {
-    if (!usuario) return 0;
+  const [resultadoWebpay, setResultadoWebpay] = useState(null);
 
-    if (usuario.rol === "CLIENTE") {
-      return 10;
+  // Detecta el retorno de Webpay: el backend redirige a /?webpayResultado=...
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const estado = params.get("webpayResultado");
+
+    if (estado) {
+      setResultadoWebpay({
+        estado,
+        codigo: params.get("codigo"),
+        monto: params.get("monto"),
+      });
+      setPaginaActual("webpay-resultado");
+      // Limpia la URL para que un refresh no repita el resultado
+      window.history.replaceState({}, "", "/");
     }
+  }, []);
 
-    return 0;
+  // Pauta FERREMAS: descuento solo aplica a clientes que compran más de 4 artículos.
+  const UMBRAL_DESCUENTO_UNIDADES = 5;
+  const PORCENTAJE_DESCUENTO_CLIENTE = 10;
+
+  const cantidadTotalCarritoCalculo = carrito.reduce(
+    (total, item) => total + item.cantidad,
+    0
+  );
+
+  const obtenerDescuentoUsuario = (usuario, unidadesEnCarrito) => {
+    if (!usuario) return 0;
+    if (usuario.rol !== "CLIENTE") return 0;
+    if (unidadesEnCarrito < UMBRAL_DESCUENTO_UNIDADES) return 0;
+    return PORCENTAJE_DESCUENTO_CLIENTE;
   };
 
-  const descuentoUsuario = obtenerDescuentoUsuario(usuarioActual);
+  const descuentoUsuario = obtenerDescuentoUsuario(
+    usuarioActual,
+    cantidadTotalCarritoCalculo
+  );
 
   const cambiarPagina = (pagina) => {
     setPaginaActual(pagina);
@@ -87,10 +118,7 @@ function App() {
     setCarrito([]);
   };
 
-  const cantidadTotalCarrito = carrito.reduce(
-    (total, item) => total + item.cantidad,
-    0
-  );
+  const cantidadTotalCarrito = cantidadTotalCarritoCalculo;
 
   const renderPagina = () => {
     if (paginaActual === "home") {
@@ -99,6 +127,21 @@ function App() {
 
     if (paginaActual === "suscripcion") {
       return <Suscripcion cambiarPagina={cambiarPagina} />;
+    }
+
+    if (paginaActual === "contacto") {
+      return (
+        <Contacto cambiarPagina={cambiarPagina} usuarioActual={usuarioActual} />
+      );
+    }
+
+    if (paginaActual === "webpay-resultado") {
+      return (
+        <WebpayResultado
+          resultado={resultadoWebpay}
+          cambiarPagina={cambiarPagina}
+        />
+      );
     }
 
     if (paginaActual === "login") {
@@ -168,6 +211,26 @@ function App() {
 
     return <Catalogo agregarAlCarrito={agregarAlCarrito} />;
   };
+
+  // Si el usuario está logueado y debe cambiar password, bloquea toda la app
+  // hasta que lo haga (excepto cerrar sesión).
+  if (usuarioActual && usuarioActual.requiereCambioPassword) {
+    return (
+      <CambiarPassword
+        usuarioActual={usuarioActual}
+        onPasswordCambiada={() => {
+          const actualizado = {
+            ...usuarioActual,
+            requiereCambioPassword: false,
+          };
+          setUsuarioActual(actualizado);
+          localStorage.setItem("usuarioFerremas", JSON.stringify(actualizado));
+          setPaginaActual("catalogo");
+        }}
+        cerrarSesion={cerrarSesion}
+      />
+    );
+  }
 
   return (
     <>

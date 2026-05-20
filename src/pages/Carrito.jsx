@@ -51,22 +51,39 @@ function Carrito({
     try {
       setCargando(true);
 
-      const primerProducto = carrito[0];
+      // Crea un pedido por cada item del carrito (multiproducto real).
+      const pedidosCreados = [];
 
-      const pedido = await crearPedido({
-        productoId: primerProducto.id,
-        usuarioId: usuarioActual.id,
-        cantidad: primerProducto.cantidad,
-        tipoEntrega,
-        direccion: tipoEntrega === "DESPACHO" ? direccion : "",
-      });
+      for (const item of carrito) {
+        const pedido = await crearPedido({
+          productoId: item.id,
+          usuarioId: usuarioActual.id,
+          cantidad: item.cantidad,
+          tipoEntrega,
+          direccion: tipoEntrega === "DESPACHO" ? direccion : "",
+        });
+
+        pedidosCreados.push(pedido);
+      }
+
+      // El primer pedido se muestra como "actual" para mantener la pantalla de
+      // pago igual que antes. La lista completa va en pedidosRelacionados.
+      const pedidoPrincipal = pedidosCreados[0];
+
+      const subtotalPrincipal =
+        pedidoPrincipal.total !== undefined ? pedidoPrincipal.total : 0;
+
+      const descuentoPrincipal = Math.round(
+        (subtotalPrincipal * descuentoUsuario) / 100
+      );
 
       const pedidoConDescuento = {
-        ...pedido,
-        subtotalOriginal: subtotal,
+        ...pedidoPrincipal,
+        subtotalOriginal: subtotalPrincipal,
         descuentoAplicado: descuentoUsuario,
-        montoDescuento,
-        totalConDescuento: totalFinal,
+        montoDescuento: descuentoPrincipal,
+        totalConDescuento: subtotalPrincipal - descuentoPrincipal,
+        pedidosRelacionados: pedidosCreados,
       };
 
       setPedidoActual(pedidoConDescuento);
@@ -118,10 +135,16 @@ function Carrito({
         </div>
       )}
 
-      {usuarioActual && usuarioActual.rol === "CLIENTE" && (
+      {usuarioActual && usuarioActual.rol === "CLIENTE" && descuentoUsuario > 0 && (
         <div className="success-message">
           Cliente: {usuarioActual.nombre} · Descuento aplicado:{" "}
-          {descuentoUsuario}%
+          {descuentoUsuario}% (compra de más de 4 artículos)
+        </div>
+      )}
+
+      {usuarioActual && usuarioActual.rol === "CLIENTE" && descuentoUsuario === 0 && (
+        <div className="info-message">
+          Cliente: {usuarioActual.nombre} · Agrega <strong>al menos 5 unidades</strong> al carrito para activar el descuento del 10%.
         </div>
       )}
 
@@ -244,9 +267,9 @@ function Carrito({
 
           {carrito.length > 1 && (
             <p className="nota-carrito">
-              Nota: esta versión genera el pedido con el primer producto del
-              carrito. La integración multiproducto puede agregarse en una
-              siguiente mejora.
+              Se generará <strong>un pedido por cada producto</strong> del
+              carrito ({carrito.length} pedidos en total). Cada pedido se paga
+              y procesa por separado en el flujo de roles.
             </p>
           )}
         </aside>

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { despacharPedido, obtenerPedidos } from "../services/api";
+import {
+  confirmarPagoTransferencia,
+  despacharPedido,
+  obtenerPedidos,
+} from "../services/api";
 
 function PanelContador({ usuarioActual, cambiarPagina }) {
   const [pedidos, setPedidos] = useState([]);
@@ -27,6 +31,21 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
     try {
       setError("");
       const pedidoActualizado = await despacharPedido(id);
+
+      setPedidos((pedidosActuales) =>
+        pedidosActuales.map((pedido) =>
+          pedido.id === id ? pedidoActualizado : pedido
+        )
+      );
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const manejarConfirmarTransferencia = async (id) => {
+    try {
+      setError("");
+      const pedidoActualizado = await confirmarPagoTransferencia(id);
 
       setPedidos((pedidosActuales) =>
         pedidosActuales.map((pedido) =>
@@ -79,12 +98,17 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
 
   const pedidosContables = pedidos.filter(
     (pedido) =>
+      pedido.estado === "EN_REVISION_PAGO" ||
       pedido.estado === "PAGADO" ||
       pedido.estado === "APROBADO" ||
       pedido.estado === "EN_PREPARACION" ||
       pedido.estado === "LISTO_DESPACHO" ||
       pedido.estado === "DESPACHADO"
   );
+
+  const pedidosPorConfirmar = pedidos.filter(
+    (pedido) => pedido.estado === "EN_REVISION_PAGO"
+  ).length;
 
   const totalVentas = pedidos
     .filter((pedido) => pedido.estado !== "RECHAZADO")
@@ -129,6 +153,11 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
             <div>
               <span>Pedidos entregados</span>
               <strong>{pedidosEntregados}</strong>
+            </div>
+
+            <div>
+              <span>Transferencias por confirmar</span>
+              <strong>{pedidosPorConfirmar}</strong>
             </div>
           </div>
         </article>
@@ -207,12 +236,27 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
               <div className="admin-actions">
                 <button
                   className="btn-primary"
+                  onClick={() => manejarConfirmarTransferencia(pedido.id)}
+                  disabled={pedido.estado !== "EN_REVISION_PAGO"}
+                >
+                  Confirmar transferencia
+                </button>
+
+                <button
+                  className="btn-secondary"
                   onClick={() => manejarDespacho(pedido.id)}
                   disabled={pedido.estado !== "LISTO_DESPACHO"}
                 >
                   Registrar entrega
                 </button>
               </div>
+
+              {pedido.estado === "EN_REVISION_PAGO" && (
+                <p className="nota-carrito">
+                  Cliente declaró transferencia. Verifica en el portal bancario
+                  y confirma para liberar el pedido al vendedor.
+                </p>
+              )}
 
               {pedido.estado === "LISTO_DESPACHO" && (
                 <p className="nota-carrito">
@@ -228,10 +272,11 @@ function PanelContador({ usuarioActual, cambiarPagina }) {
                 </p>
               )}
 
-              {pedido.estado !== "LISTO_DESPACHO" &&
+              {pedido.estado !== "EN_REVISION_PAGO" &&
+                pedido.estado !== "LISTO_DESPACHO" &&
                 pedido.estado !== "DESPACHADO" && (
                   <p className="nota-carrito">
-                    Este pedido aún no está listo para registrar entrega.
+                    Este pedido está siendo procesado por otro rol del sistema.
                   </p>
                 )}
             </article>

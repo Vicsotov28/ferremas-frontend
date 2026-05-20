@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { crearPreferenciaMercadoPago, pagarPedido } from "../services/api";
+import { crearTransaccionWebpay, pagarPedido } from "../services/api";
 
 function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
-  const [metodoPago, setMetodoPago] = useState("MERCADO_PAGO");
+  const [metodoPago, setMetodoPago] = useState("WEBPAY");
+  // Nota: Mercado Pago se mantiene integrado en el backend (3ra API del proyecto)
+  // pero no se ofrece como medio de pago al cliente. Métodos activos: Webpay y Transferencia.
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
   const [resultadoPago, setResultadoPago] = useState(null);
+
 
   const totalMostrado =
     pedidoActual?.totalConDescuento !== undefined
@@ -20,41 +23,6 @@ function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
   const descuentoAplicado = pedidoActual?.descuentoAplicado || 0;
   const montoDescuento = pedidoActual?.montoDescuento || 0;
 
-  const pagarConMercadoPago = async () => {
-    if (!pedidoActual) return;
-
-    try {
-      setError("");
-      setResultadoPago(null);
-      setCargando(true);
-
-      const respuesta = await crearPreferenciaMercadoPago({
-        pedidoId: pedidoActual.id,
-        titulo: pedidoActual.producto?.nombre || "Pedido FERREMAS",
-        cantidad: pedidoActual.cantidad || 1,
-        precioUnitario: Number(totalMostrado || pedidoActual.total),
-      });
-
-      const urlPago = respuesta.sandboxInitPoint || respuesta.initPoint;
-
-      if (!urlPago) {
-        throw new Error("No se recibió URL de pago desde Mercado Pago");
-      }
-
-      window.location.href = urlPago;
-    } catch (error) {
-      setError(error.message);
-      setResultadoPago({
-        tipo: "rechazado",
-        titulo: "Error al iniciar pago",
-        mensaje:
-          "No se pudo generar la preferencia de pago en Mercado Pago. Revisa la integración e intenta nuevamente.",
-      });
-    } finally {
-      setCargando(false);
-    }
-  };
-
   const confirmarTransferencia = async () => {
     if (!pedidoActual) return;
 
@@ -63,26 +31,46 @@ function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
       setResultadoPago(null);
       setCargando(true);
 
-      const pedidoPagado = await pagarPedido({
-        pedidoId: pedidoActual.id,
-        metodoPago: "TRANSFERENCIA",
-      });
+      // Si el lote tiene varios pedidos, marca transferencia en todos.
+      const pedidosLote = pedidoActual.pedidosRelacionados?.length
+        ? pedidoActual.pedidosRelacionados
+        : [pedidoActual];
+
+      let pedidoPrincipalPagado = null;
+
+      for (const pedido of pedidosLote) {
+        const pedidoPagado = await pagarPedido({
+          pedidoId: pedido.id,
+          metodoPago: "TRANSFERENCIA",
+        });
+
+        if (pedido.id === pedidoActual.id) {
+          pedidoPrincipalPagado = pedidoPagado;
+        }
+      }
 
       const pedidoActualizado = {
-        ...pedidoPagado,
+        ...(pedidoPrincipalPagado || pedidoActual),
         subtotalOriginal: pedidoActual.subtotalOriginal,
         descuentoAplicado: pedidoActual.descuentoAplicado,
         montoDescuento: pedidoActual.montoDescuento,
         totalConDescuento: pedidoActual.totalConDescuento,
+        pedidosRelacionados: pedidoActual.pedidosRelacionados,
       };
 
       setPedidoActual(pedidoActualizado);
+
+      const mensajeLote =
+        pedidosLote.length > 1
+          ? `Se registraron ${pedidosLote.length} transferencias (una por pedido del carrito). `
+          : "Tu transferencia fue registrada. ";
 
       setResultadoPago({
         tipo: "exito",
         titulo: "Transferencia registrada",
         mensaje:
-          "La transferencia fue registrada correctamente. El pedido continuará al flujo de revisión del vendedor.",
+          mensajeLote +
+          "El pedido queda EN REVISIÓN DE PAGO hasta que el contador la confirme. Una vez confirmada, pasa al vendedor para aprobación.",
       });
     } catch (error) {
       setError(error.message);
@@ -97,9 +85,67 @@ function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
     }
   };
 
+  const pagarConWebpay = async () => {
+    if (!pedidoActual) return;
+
+    try {
+      setError("");
+      setResultadoPago(null);
+      setCargando(true);
+
+      // Todos los pedidos del lote (multiproducto)
+      const pedidosLote = pedidoActual.pedidosRelacionados?.length
+        ? pedidoActual.pedidosRelacionados
+        : [pedidoActual];
+
+      const idsLote = pedidosLote.map((p) => p.id);
+
+      // Monto total = suma de los totales de todos los pedidos del lote
+      const montoTotal = pedidosLote.reduce(
+        (sum, p) => sum + (Number(p.total) || 0),
+        0
+      );
+
+      // Paso 1: pide al backend que cree la transacción en Transbank
+      const { token, url } = await crearTransaccionWebpay({
+        pedidoId: pedidoActual.id,
+        pedidosLote: idsLote,
+        monto: montoTotal,
+      });
+
+      if (!token || !url) {
+        throw new Error("No se recibió token o URL desde Webpay.");
+      }
+
+      // Paso 2: redirige al formulario de Webpay vía POST con el token_ws.
+      // Webpay exige POST, así que creamos un form dinámico y lo enviamos.
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = url;
+
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "token_ws";
+      input.value = token;
+
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    } catch (error) {
+      setError(error.message);
+      setResultadoPago({
+        tipo: "rechazado",
+        titulo: "Error al iniciar pago",
+        mensaje:
+          "No se pudo iniciar la transacción con Webpay. Revisa que el backend esté corriendo e intenta nuevamente.",
+      });
+      setCargando(false);
+    }
+  };
+
   const procesarPago = () => {
-    if (metodoPago === "MERCADO_PAGO") {
-      pagarConMercadoPago();
+    if (metodoPago === "WEBPAY") {
+      pagarConWebpay();
       return;
     }
 
@@ -261,27 +307,34 @@ function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
               onChange={(e) => setMetodoPago(e.target.value)}
               disabled={pedidoActual.estado !== "PENDIENTE"}
             >
-              <option value="MERCADO_PAGO">
-                Mercado Pago / Tarjeta / Débito / Crédito
-              </option>
+              <option value="WEBPAY">Webpay (Tarjeta Crédito / Débito)</option>
               <option value="TRANSFERENCIA">Transferencia bancaria</option>
             </select>
           </div>
 
-          {metodoPago === "MERCADO_PAGO" &&
+          {metodoPago === "WEBPAY" &&
             pedidoActual.estado === "PENDIENTE" && (
-              <div className="mercadopago-box">
-                <h4>Pago con Mercado Pago</h4>
+              <div className="transferencia-box">
+                <h4>💳 Pago con Webpay</h4>
                 <p>
-                  Serás redirigido al ambiente seguro de Mercado Pago, donde
-                  podrás pagar con tarjeta de crédito, débito u otros medios
-                  disponibles.
+                  Al confirmar serás redirigido al <strong>portal seguro de
+                  Webpay (Transbank)</strong>, donde ingresarás los datos de tu
+                  tarjeta. Al terminar volverás automáticamente a FERREMAS.
                 </p>
 
                 <div className="transferencia-total">
                   <span>Monto a pagar</span>
                   <strong>${totalMostrado?.toLocaleString("es-CL")}</strong>
                 </div>
+
+                <p style={{ fontSize: "12px", opacity: 0.7 }}>
+                  💡 <strong>Tarjeta de prueba (ambiente integración):</strong>
+                  <br />
+                  VISA aprueba: 4051 8856 0044 6623 · CVV 123 · fecha futura
+                  cualquiera
+                  <br />
+                  Autenticación: RUT 11.111.111-1 · clave 123
+                </p>
               </div>
             )}
 
@@ -340,16 +393,16 @@ function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
             {pedidoActual.estado === "PENDIENTE"
               ? cargando
                 ? "Procesando..."
-                : metodoPago === "MERCADO_PAGO"
-                ? "Pagar con Mercado Pago"
+                : metodoPago === "WEBPAY"
+                ? "Pagar con Webpay"
                 : "Confirmar transferencia"
               : "Pago procesado"}
           </button>
 
           <p className="nota-carrito">
-            El pago con tarjeta, débito o crédito se realiza mediante Mercado
-            Pago Checkout Pro. La transferencia bancaria se mantiene como flujo
-            alternativo.
+            El pago con tarjeta de crédito o débito se procesa mediante Webpay.
+            La transferencia bancaria queda EN REVISIÓN hasta que el contador la
+            confirme.
           </p>
         </aside>
       </section>

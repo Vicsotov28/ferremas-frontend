@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
-import { aprobarPedido, obtenerPedidos, rechazarPedido } from "../services/api";
+import {
+  aprobarPedido,
+  listarContactos,
+  obtenerPedidos,
+  obtenerProductosAdmin,
+  rechazarPedido,
+} from "../services/api";
 
 function PanelVendedor({ usuarioActual, cambiarPagina }) {
   const [pedidos, setPedidos] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [contactos, setContactos] = useState([]);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
 
@@ -10,8 +18,16 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
     try {
       setCargando(true);
       setError("");
-      const data = await obtenerPedidos();
-      setPedidos(data);
+
+      const [pedidosData, productosData, contactosData] = await Promise.all([
+        obtenerPedidos(),
+        obtenerProductosAdmin(),
+        listarContactos().catch(() => []),
+      ]);
+
+      setPedidos(pedidosData);
+      setProductos(productosData);
+      setContactos(contactosData);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -109,6 +125,79 @@ function PanelVendedor({ usuarioActual, cambiarPagina }) {
       </div>
 
       {error && <p className="error-message">{error}</p>}
+
+      {!cargando && productos.length > 0 && (
+        <section className="admin-grid" style={{ marginBottom: "24px" }}>
+          <article className="admin-card">
+            <div className="admin-card-header">
+              <div>
+                <p className="eyebrow-dark">Inventario en bodega</p>
+                <h3>Productos disponibles</h3>
+              </div>
+            </div>
+
+            <div className="admin-product-list">
+              {productos.map((producto) => (
+                <article className="admin-product-item" key={producto.id}>
+                  <div>
+                    <strong>{producto.nombre}</strong>
+                    <span>
+                      {producto.codigoProducto} · {producto.marca}
+                    </span>
+                    <small>
+                      ${producto.precio?.toLocaleString("es-CL")}
+                    </small>
+                  </div>
+                  <strong
+                    style={{
+                      color:
+                        producto.stock <= 5
+                          ? "#dc2626"
+                          : producto.stock <= 15
+                          ? "#d97706"
+                          : "#16a34a",
+                    }}
+                  >
+                    Stock: {producto.stock}
+                  </strong>
+                </article>
+              ))}
+            </div>
+          </article>
+        </section>
+      )}
+
+      {!cargando && contactos.length > 0 && (
+        <section className="admin-grid" style={{ marginBottom: "24px" }}>
+          <article className="admin-card">
+            <div className="admin-card-header">
+              <div>
+                <p className="eyebrow-dark">Mensajes de contacto</p>
+                <h3>Bandeja del vendedor ({contactos.length})</h3>
+              </div>
+            </div>
+
+            <div className="admin-product-list">
+              {contactos.map((contacto) => (
+                <article className="admin-product-item" key={contacto.id}>
+                  <div>
+                    <strong>{contacto.asunto}</strong>
+                    <span>
+                      {contacto.nombre} · {contacto.email}
+                    </span>
+                    <small>{contacto.mensaje}</small>
+                  </div>
+                  <span
+                    className={`estado-badge estado-${contacto.estado}`}
+                  >
+                    {contacto.estado}
+                  </span>
+                </article>
+              ))}
+            </div>
+          </article>
+        </section>
+      )}
 
       {cargando ? (
         <section className="empty-state">

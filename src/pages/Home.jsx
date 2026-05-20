@@ -1,4 +1,17 @@
+import { useEffect, useState } from "react";
+import { obtenerProductos } from "../services/api";
+import { imagenesProductos } from "../data/imagenesProductos";
+
 function Home({ cambiarPagina }) {
+  const [destacados, setDestacados] = useState([]);
+  const [errorDestacados, setErrorDestacados] = useState("");
+
+  useEffect(() => {
+    obtenerProductos()
+      .then((data) => setDestacados(data.slice(0, 4)))
+      .catch((error) => setErrorDestacados(error.message));
+  }, []);
+
   const categorias = [
     {
       nombre: "Herramientas manuales",
@@ -67,6 +80,47 @@ function Home({ cambiarPagina }) {
             Iniciar sesión
           </button>
         </div>
+      </section>
+
+      <section className="home-category-section">
+        <div className="catalogo-header">
+          <div>
+            <h2>Productos destacados</h2>
+            <p>
+              Selección de productos en promoción y lanzamientos recientes
+              FERREMAS, traídos en vivo desde la API.
+            </p>
+          </div>
+        </div>
+
+        {errorDestacados && (
+          <p className="warning-message">{errorDestacados}</p>
+        )}
+
+        {destacados.length > 0 && (
+          <div className="home-category-grid">
+            {destacados.map((producto) => {
+              const imagen = imagenesProductos[producto.codigoProducto];
+              return (
+                <article
+                  className="home-category-card"
+                  key={producto.id}
+                  onClick={() => cambiarPagina("catalogo")}
+                >
+                  <div className="producto-imagen">
+                    {imagen ? (
+                      <img src={imagen} alt={producto.nombre} />
+                    ) : (
+                      <span>🔧</span>
+                    )}
+                  </div>
+                  <h3>{producto.nombre}</h3>
+                  <button className="category-link">Ver en catálogo</button>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="home-category-section">

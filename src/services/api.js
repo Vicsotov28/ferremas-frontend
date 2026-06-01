@@ -157,19 +157,6 @@ export async function obtenerValorDolar() {
   return await manejarRespuesta(response, "Error al obtener valor del dólar");
 }
 
-export async function crearPreferenciaMercadoPago(preferencia) {
-  const response = await fetch(`${API_URL}/api/pagos/mercadopago/preferencia`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(preferencia),
-  });
-
-  return await manejarRespuesta(
-    response,
-    "Error al crear preferencia de Mercado Pago"
-  );
-}
-
 export async function registrarSuscripcion(email) {
   const response = await fetch(`${API_URL}/api/suscripciones`, {
     method: "POST",

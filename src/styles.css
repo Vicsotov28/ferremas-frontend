@@ -1515,30 +1515,6 @@ button {
 
 
 /* =========================
-   MERCADO PAGO
-========================= */
-
-.mercadopago-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 18px;
-  padding: 16px;
-  margin: 16px 0;
-}
-
-.mercadopago-box h4 {
-  margin: 0 0 10px;
-  color: #1d4ed8;
-  font-size: 1rem;
-}
-
-.mercadopago-box p {
-  color: #475569;
-  line-height: 1.45;
-  font-size: 0.9rem;
-}
-
-/* =========================
    TRANSFERENCIA BANCARIA
 ========================= */
 

@@ -3,8 +3,7 @@ import { crearTransaccionWebpay, pagarPedido } from "../services/api";
 
 function Pedidos({ pedidoActual, setPedidoActual, cambiarPagina }) {
   const [metodoPago, setMetodoPago] = useState("WEBPAY");
-  // Nota: Mercado Pago se mantiene integrado en el backend (3ra API del proyecto)
-  // pero no se ofrece como medio de pago al cliente. Métodos activos: Webpay y Transferencia.
+  // Métodos de pago activos: Webpay (Transbank) y transferencia bancaria.
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
   const [resultadoPago, setResultadoPago] = useState(null);

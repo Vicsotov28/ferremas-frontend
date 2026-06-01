@@ -22,7 +22,7 @@ El sistema permite:
 - Crear pedidos asociados al cliente.
 - Aplicar descuento al cliente.
 - Seleccionar retiro o despacho.
-- Pagar por transferencia o Mercado Pago.
+- Pagar por transferencia o Webpay (Transbank).
 - Ver seguimiento del pedido.
 - Gestionar pedidos desde paneles internos.
 - Registrar suscripciones.
@@ -40,7 +40,7 @@ El sistema permite:
 - LocalStorage
 - Git y GitHub
 - Backend Spring Boot
-- Mercado Pago Checkout Pro
+- Webpay Plus de Transbank
 - API Banco Central de Chile
 
 ---
@@ -152,7 +152,7 @@ Puede:
 - Agregar productos al carrito.
 - Crear pedidos.
 - Seleccionar retiro o despacho.
-- Pagar por transferencia o Mercado Pago.
+- Pagar por transferencia o Webpay (Transbank).
 - Ver seguimiento del pedido.
 - Recibir descuento visual del 10%.
 
@@ -226,33 +226,36 @@ La vista de pedidos permite:
 - Revisar producto, cantidad, entrega, dirección y total.
 - Ver descuento aplicado.
 - Seleccionar método de pago.
-- Pagar con Mercado Pago.
+- Pagar con Webpay (redirige al portal oficial de Transbank).
 - Confirmar transferencia bancaria.
 
 ---
 
-## Integración con Mercado Pago
+## Integración con Webpay (Transbank)
 
-El frontend se conecta al backend para crear una preferencia de pago.
+El frontend se conecta al backend para crear una transacción de pago.
 
 Flujo general:
 
 ```text
 Cliente crea pedido
         ↓
-Frontend solicita preferencia al backend
+Frontend solicita la transacción al backend
         ↓
-Backend crea preferencia con Mercado Pago
+Backend crea la transacción con Webpay Plus (Transbank)
         ↓
-Frontend redirige al Checkout Pro
+Frontend redirige al portal oficial de Webpay (POST con token)
         ↓
-Cliente realiza pago de prueba
+Cliente paga con tarjeta de prueba oficial
+        ↓
+Transbank vuelve a FERREMAS y el backend confirma (commit)
 ```
 
 Endpoint utilizado:
 
 ```http
-POST /api/pagos/mercadopago/preferencia
+POST /api/pagos/webpay/crear
+GET/POST /api/pagos/webpay/retorno
 ```
 
 ---
@@ -300,7 +303,7 @@ Principales funciones:
 - `marcarListoDespacho`
 - `despacharPedido`
 - `obtenerValorDolar`
-- `crearPreferenciaMercadoPago`
+- `crearTransaccionWebpay`
 - `registrarSuscripcion`
 
 ---
@@ -365,7 +368,7 @@ Para demostrar el sistema completo:
 1. Iniciar sesión como cliente.
 2. Agregar producto al carrito.
 3. Crear pedido.
-4. Pagar por transferencia o Mercado Pago.
+4. Pagar por transferencia o Webpay (Transbank).
 5. Iniciar sesión como vendedor.
 6. Aprobar pedido pagado.
 7. Iniciar sesión como bodeguero.
@@ -385,7 +388,7 @@ Para demostrar el sistema completo:
 - Carrito con descuento.
 - Creación de pedido.
 - Pantalla de pago.
-- Redirección a Mercado Pago.
+- Redirección al portal oficial de Webpay.
 - Panel de vendedor mostrando cliente asociado.
 - Panel de bodeguero mostrando preparación.
 - Panel de contador mostrando entrega final.
